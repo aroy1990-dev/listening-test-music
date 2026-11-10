@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Music Listening Test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" />
+<style>
+:root{
+  --bg:#EDEEF2; --surface:#FBFBFD; --surface-2:#F3F4F8; --surface-3:#E9EBF0;
+  --ink:#171A21; --ink-soft:#3A404C; --muted:#646B7A; --faint:#8A91A0;
+  --line:#DBDDE4; --line-strong:#C7CAD4;
+  --accent:#E07A1F; --accent-strong:#B5601A; --accent-tint:#FBEBD8; --accent-line:#EFC79B;
+  --on-accent:#1C1205;
+  --good:#3E8E5A;
+  --shadow:0 1px 2px rgba(20,24,33,.05), 0 8px 24px -12px rgba(20,24,33,.18);
+  --shadow-lift:0 2px 4px rgba(20,24,33,.06), 0 18px 40px -16px rgba(20,24,33,.28);
+  --serif:"Instrument Serif", Georgia, "Times New Roman", serif;
+  --sans:"IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+:root:not([data-theme="light"]){ }
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1015; --surface:#171A21; --surface-2:#1D2129; --surface-3:#242A34;
+    --ink:#ECEEF3; --ink-soft:#C4C9D3; --muted:#98A0AF; --faint:#727A88;
+    --line:#292E39; --line-strong:#39404D;
+    --accent:#F2A03D; --accent-strong:#F4B463; --accent-tint:#2A2013;
+    --accent-line:#5A4526; --on-accent:#1C1205;
+    --good:#5FB37C;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -14px rgba(0,0,0,.6);
+    --shadow-lift:0 2px 6px rgba(0,0,0,.5), 0 22px 50px -18px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1015; --surface:#171A21; --surface-2:#1D2129; --surface-3:#242A34;
+  --ink:#ECEEF3; --ink-soft:#C4C9D3; --muted:#98A0AF; --faint:#727A88;
+  --line:#292E39; --line-strong:#39404D;
+  --accent:#F2A03D; --accent-strong:#F4B463; --accent-tint:#2A2013;
+  --accent-line:#5A4526; --on-accent:#1C1205;
+  --good:#5FB37C;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -14px rgba(0,0,0,.6);
+  --shadow-lift:0 2px 6px rgba(0,0,0,.5), 0 22px 50px -18px rgba(0,0,0,.7);
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:var(--sans); font-size:16px; line-height:1.5;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  min-height:100vh;
+}
+button{font-family:inherit;}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px;}
+
+.wrap{max-width:960px; margin:0 auto; padding:0 20px;}
+
+/* progress rail */
+.railwrap{position:sticky; top:0; z-index:20; background:color-mix(in srgb, var(--bg) 86%, transparent); backdrop-filter:blur(8px); border-bottom:1px solid var(--line);}
+.rail{height:3px; background:transparent;}
+.rail > i{display:block; height:100%; width:0%; background:var(--accent); transition:width .4s cubic-bezier(.4,0,.2,1);}
+
+header.top{display:flex; align-items:center; justify-content:space-between; padding:14px 0;}
+.brand{display:flex; align-items:center; gap:10px;}
+.brand .dot{width:9px; height:9px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 4px var(--accent-tint);}
+.brand .name{font-family:var(--mono); font-size:11.5px; letter-spacing:.22em; text-transform:uppercase; color:var(--muted);}
+.counter{font-family:var(--mono); font-size:12px; letter-spacing:.14em; color:var(--muted); font-variant-numeric:tabular-nums;}
+.counter b{color:var(--ink); font-weight:600;}
+.iconbtn{background:var(--surface); border:1px solid var(--line); color:var(--ink-soft); width:34px; height:34px; border-radius:9px; cursor:pointer; display:grid; place-items:center; transition:border-color .2s, background .2s;}
+.iconbtn:hover{border-color:var(--line-strong); background:var(--surface-2);}
+.iconbtn svg{width:16px; height:16px;}
+
+main{padding:40px 0 72px;}
+
+/* screens */
+.screen{animation:rise .45s cubic-bezier(.2,.7,.2,1) both;}
+@keyframes rise{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;}}
+@media (prefers-reduced-motion:reduce){ .screen{animation:none;} .rail > i{transition:none;} }
+
+/* intro */
+.eyebrow{font-family:var(--mono); font-size:12px; letter-spacing:.2em; text-transform:uppercase; color:var(--accent-strong); margin:0 0 18px;}
+h1.hero{font-family:var(--serif); font-weight:400; font-size:clamp(46px,8vw,86px); line-height:.98; letter-spacing:-.01em; margin:0 0 20px; text-wrap:balance;}
+h1.hero em{font-style:italic; color:var(--accent-strong);}
+.lead{font-size:clamp(17px,2.4vw,20px); color:var(--ink-soft); max-width:60ch; margin:0 0 36px;}
+.steps{list-style:none; padding:0; margin:0 0 40px; display:grid; gap:18px; max-width:640px;}
+.steps li{display:grid; grid-template-columns:auto 1fr; gap:16px; align-items:start;}
+.steps .num{font-family:var(--mono); font-size:12px; color:var(--accent-strong); border:1px solid var(--accent-line); background:var(--accent-tint); border-radius:6px; padding:3px 8px; letter-spacing:.1em;}
+.steps h3{margin:0 0 3px; font-size:15.5px; font-weight:600;}
+.steps p{margin:0; color:var(--muted); font-size:14.5px;}
+.idfield{display:flex; flex-direction:column; gap:7px; max-width:340px; margin:0 0 26px;}
+.idfield label{font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted);}
+.idfield input{padding:11px 13px; border:1px solid var(--line-strong); border-radius:10px; background:var(--surface); color:var(--ink); font-size:15px; font-family:var(--sans);}
+.idfield input::placeholder{color:var(--faint);}
+.meta{font-family:var(--mono); font-size:12px; color:var(--faint); margin-top:28px; letter-spacing:.04em;}
+
+/* buttons */
+.btn{border:none; cursor:pointer; font-size:15px; font-weight:600; padding:14px 26px; border-radius:12px; display:inline-flex; align-items:center; gap:10px; transition:transform .12s, box-shadow .2s, background .2s, border-color .2s;}
+.btn:active{transform:translateY(1px);}
+.btn.primary{background:var(--accent); color:var(--on-accent); box-shadow:var(--shadow);}
+.btn.primary:hover{background:var(--accent-strong); color:#fff;}
+.btn.ghost{background:var(--surface); color:var(--ink); border:1px solid var(--line-strong);}
+.btn.ghost:hover{background:var(--surface-2);}
+.btn[disabled]{opacity:.42; cursor:not-allowed; box-shadow:none;}
+.btn svg{width:17px; height:17px;}
+
+/* question */
+.qhead{display:flex; align-items:baseline; gap:14px; margin:0 0 6px; flex-wrap:wrap;}
+.qtag{font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent-strong);}
+.qsub{font-family:var(--mono); font-size:12px; color:var(--faint); letter-spacing:.06em;}
+h2.q{font-family:var(--serif); font-weight:400; font-size:clamp(28px,4.2vw,42px); line-height:1.06; margin:0 0 22px; letter-spacing:-.005em; text-wrap:balance;}
+
+/* reference clips */
+.refrow{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:26px;}
+@media (max-width:640px){ .refrow{grid-template-columns:1fr;} }
+.refcard{background:var(--surface-2); border:1px solid var(--line); border-radius:14px; padding:16px 18px;}
+.reflabel{font-size:13px; font-weight:600; margin-bottom:10px; color:var(--ink-soft);}
+.reflabel .refhint{font-weight:400; color:var(--muted);}
+
+.panels{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+@media (max-width:640px){ .panels{grid-template-columns:1fr;} }
+.panels3{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+@media (max-width:760px){ .panels3{grid-template-columns:1fr;} }
+
+.panel{position:relative; background:var(--surface); border:1.5px solid var(--line); border-radius:18px; padding:20px 20px 22px; box-shadow:var(--shadow); cursor:pointer; transition:border-color .2s, box-shadow .2s, transform .15s, background .2s; text-align:left; color:inherit; font:inherit;}
+.panel:hover{border-color:var(--line-strong); transform:translateY(-2px); box-shadow:var(--shadow-lift);}
+.panel.sel{border-color:var(--accent); background:linear-gradient(180deg, var(--accent-tint), var(--surface) 60%); box-shadow:var(--shadow-lift);}
+.panel .ptop{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;}
+.panel .plabel{display:flex; align-items:center; gap:11px;}
+.panel .badge{font-family:var(--mono); font-weight:600; font-size:15px; width:34px; height:34px; border-radius:9px; display:grid; place-items:center; background:var(--surface-3); color:var(--ink); border:1px solid var(--line);}
+.panel.sel .badge{background:var(--accent); color:var(--on-accent); border-color:var(--accent);}
+.panel .ptitle{font-size:14px; font-weight:600;}
+.check{width:22px; height:22px; border-radius:50%; border:1.5px solid var(--line-strong); display:grid; place-items:center; color:transparent; transition:all .2s; flex:none;}
+.panel.sel .check{background:var(--accent); border-color:var(--accent); color:var(--on-accent);}
+.check svg{width:13px; height:13px;}
+
+.player{display:flex; align-items:center; gap:14px;}
+.play{flex:none; width:44px; height:44px; border-radius:50%; border:1px solid var(--line-strong); background:var(--surface-2); color:var(--ink); cursor:pointer; display:grid; place-items:center; transition:transform .12s, background .2s, border-color .2s;}
+.play:hover{background:var(--surface-3); border-color:var(--accent);}
+.panel.sel .play{border-color:var(--accent);}
+.play:active{transform:scale(.94);}
+.play svg{width:17px; height:17px; margin-left:1px;}
+.play.playing svg{margin-left:0;}
+.barwrap{flex:1; height:8px; border-radius:999px; background:var(--surface-3); overflow:hidden;}
+.refcard .barwrap{background:var(--surface-3);}
+.bar{height:100%; width:0%; background:var(--accent); border-radius:999px;}
+
+.qnav{display:flex; align-items:center; justify-content:space-between; margin-top:32px; gap:14px;}
+.qnav .left{display:flex; gap:10px;}
+.hint{font-family:var(--mono); font-size:12px; color:var(--faint); letter-spacing:.04em;}
+
+/* review */
+.grid20{display:grid; grid-template-columns:repeat(auto-fill,minmax(128px,1fr)); gap:10px; margin:26px 0 30px;}
+.rchip{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:11px 13px; border:1px solid var(--line); border-radius:11px; background:var(--surface); cursor:pointer; text-align:left; font:inherit; color:inherit; transition:border-color .2s, background .2s;}
+.rchip:hover{border-color:var(--line-strong); background:var(--surface-2);}
+.rchip .rn{font-family:var(--mono); font-size:12px; color:var(--muted); letter-spacing:.08em;}
+.rchip .rv{font-family:var(--mono); font-weight:600; font-size:13px; padding:2px 9px; border-radius:6px; background:var(--surface-3); color:var(--ink);}
+.rchip .rv.set{background:var(--accent-tint); color:var(--accent-strong); border:1px solid var(--accent-line);}
+.rchip .rv.miss{background:transparent; color:var(--faint); border:1px dashed var(--line-strong);}
+.rchip.missing{border-color:var(--accent-line); border-style:dashed;}
+.reviewbar{display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;}
+.tally{font-family:var(--mono); font-size:12.5px; color:var(--muted); letter-spacing:.06em;}
+.tally b{color:var(--ink);}
+
+/* done */
+.donecard{text-align:center; padding:48px 24px; max-width:560px; margin:20px auto 0;}
+.donemark{width:76px; height:76px; border-radius:50%; margin:0 auto 26px; display:grid; place-items:center; background:var(--accent-tint); border:1px solid var(--accent-line); color:var(--accent-strong);}
+.donemark svg{width:34px; height:34px;}
+.donecard h2{font-family:var(--serif); font-weight:400; font-size:44px; margin:0 0 12px;}
+.donecard p{color:var(--muted); margin:0 auto; max-width:44ch;}
+.demoflag{display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--faint); border:1px dashed var(--line-strong); border-radius:20px; padding:5px 12px; margin-top:30px;}
+[hidden]{display:none!important;}
+.panels4{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+@media (max-width:640px){ .panels4{grid-template-columns:1fr;} }
+.note{font-size:14.5px; color:var(--muted); max-width:60ch; margin:0 0 36px;}
+</style>
+</head>
+<body>
+<div class="railwrap">
+  <div class="rail"><i id="rail"></i></div>
+  <div class="wrap">
+    <header class="top">
+      <div class="brand"><span class="dot"></span><span class="name" id="brandName">Music Listening Test</span></div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span class="counter" id="counter" hidden><b id="cNow">01</b> / <span id="cTot">24</span></span>
+        <button class="iconbtn" id="theme" aria-label="Toggle light and dark theme" title="Toggle theme">
+          <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+        </button>
+      </div>
+    </header>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <!-- INTRO -->
+  <section class="screen" id="intro">
+    <p class="eyebrow">Blind listening study</p>
+    <h1 class="hero">Which one <em>sounds</em><br/>best?</h1>
+    <p class="lead">You'll hear 24 short music excerpts, 30 seconds each. For every excerpt there are four versions of the same piece. Listen to the four options and pick the one that sounds best overall.</p>
+    <p class="lead" style="margin-top:-24px; color:var(--accent-strong); font-weight:600;">Please wear headphones, and set a comfortable volume before you start. The differences between options can be subtle and are easy to miss on laptop or phone speakers.</p>
+    <p class="lead" style="margin-top:-24px; color:var(--muted); font-size:14.5px;">All versions have been matched for loudness, so please leave your volume alone during the test. The order of the excerpts and of the options is shuffled for every listener. Some options may sound very alike. That's expected, so go with your honest impression.</p>
+    <ol class="steps">
+      <li><span class="num">01</span><div><h3>Listen to the four options</h3><p>Play each one as often as you like and switch between them freely. You don't have to hear a clip to the end.</p></div></li>
+      <li><span class="num">02</span><div><h3>Pick the one that sounds best</h3><p>Tap an option to select it. You can change your mind at any point.</p></div></li>
+      <li><span class="num">03</span><div><h3>Move through all 24 trials</h3><p>Review everything at the end, then submit. Takes about 30 minutes.</p></div></li>
+    </ol>
+    <div class="idfield">
+      <label for="pid">Participant tag <span style="text-transform:none;letter-spacing:0;">(optional)</span></label>
+      <input id="pid" type="text" placeholder="e.g. listener-07, or leave blank" autocomplete="off" maxlength="60" />
+    </div>
+    <button class="btn primary" id="startBtn">
+      Begin the test
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
+    <p class="meta" id="introMeta">Anonymous · headphones required · ~30 min</p>
+  </section>
+
+  <!-- QUESTION -->
+  <section class="screen" id="question" hidden>
+    <div class="qhead">
+      <span class="qtag" id="qtag">Trial 01</span>
+      <span class="qsub" id="qsub">4 options · 30 s each</span>
+    </div>
+    <h2 class="q" id="qprompt">Which version sounds best overall?</h2>
+
+    <div class="panels4" id="sampleGrid"></div>
+
+    <div class="qnav">
+      <div class="left">
+        <button class="btn ghost" id="prevBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+          Back
+        </button>
+      </div>
+      <span class="hint" id="navHint">Pick an option to continue</span>
+      <button class="btn primary" id="nextBtn" disabled>
+        <span id="nextLabel">Next</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- REVIEW -->
+  <section class="screen" id="review" hidden>
+    <p class="eyebrow">Almost done</p>
+    <h1 class="hero" style="font-size:clamp(36px,6vw,60px);margin-bottom:14px;">Review your answers.</h1>
+    <p class="lead" style="margin-bottom:8px;">Tap any trial to listen again and change your pick. When you're happy, submit.</p>
+    <div class="grid20" id="grid20"></div>
+    <div class="reviewbar">
+      <span class="tally" id="tally"></span>
+      <div style="display:flex;gap:10px;">
+        <button class="btn ghost" id="backToTop">Back to start</button>
+        <button class="btn primary" id="submitBtn">
+          <span>Submit answers</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- DONE -->
+  <section class="screen" id="done" hidden>
+    <div class="donecard">
+      <div class="donemark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+      </div>
+      <h2>Thank you.</h2>
+      <p id="doneMsg">Your responses have been recorded. You can close this tab now, and thanks for lending us your ears.</p>
+      <div id="demoFlag" class="demoflag" hidden>Demo mode · responses downloaded locally</div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+/* ============================================================
+   CONFIG — set ENDPOINT to your Google Apps Script Web App URL
+   to collect responses (see collector/Code.gs). Leave "" for demo
+   mode (downloads a local file on submit instead of sending
+   anywhere).
+   ============================================================ */
+const CONFIG = {
+  ENDPOINT: "",
+  TITLE: "Music Listening Test",
+  QUESTION_COUNT: 24,
+};
+
+/* ---------- trial data ----------
+   24 trials x 4 versions. File labels (A-D) were already randomized by
+   the researcher, and which system produced which file lives only in the
+   private key.json, never here. Answers are recorded as the file label. */
+const LABELS = ['A','B','C','D'];
+const TRIALS = Array.from({length:CONFIG.QUESTION_COUNT},(_,i)=>{
+  const id='t'+String(i+1).padStart(2,'0');
+  const samples={}; LABELS.forEach(l=>{ samples[l]='audio/'+id+'_'+l+'.wav'; });
+  return {id, samples};
+});
+
+/* ---------- per-participant randomization ----------
+   Two independent shuffles, seeded fresh per page load (= per participant):
+   1. ORDER/POSITION_OF — the sequence trials are presented in. state.idx
+      is a position in the shuffled sequence; ORDER[state.idx] maps back to
+      the true trial index. Answers are stored keyed by true trial id.
+   2. TRIALS[i].slots — which on-screen slot (1st-4th) each file A-D lands
+      in, so position bias can't favour one system. Answers are stored as
+      the true file label, never the slot. */
+function shuffled(arr){
+  const a=arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+TRIALS.forEach(t=>{ t.slots=shuffled(LABELS); });
+const ORDER=shuffled(Array.from({length:CONFIG.QUESTION_COUNT},(_,i)=>i));
+const POSITION_OF=new Array(CONFIG.QUESTION_COUNT);
+ORDER.forEach((identityIdx,pos)=>{ POSITION_OF[identityIdx]=pos; });
+
+/* ---------- audio playback ----------
+   One clip plays at a time. Clips for the current and next trial are
+   preloaded so switching between options is instant; older ones are
+   released to keep memory bounded. */
+const PLAY_ICON='<svg class="ic-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+const PAUSE_ICON='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>';
+const audioCache={};
+const playCounts={};
+let currentAudio=null; // {el, key, btn}
+function getAudio(src){
+  if(!audioCache[src]){ const a=new Audio(); a.preload='auto'; a.src=src; audioCache[src]=a; }
+  return audioCache[src];
+}
+function preloadTrial(pos){
+  if(pos<0||pos>=CONFIG.QUESTION_COUNT) return;
+  const t=TRIALS[ORDER[pos]];
+  LABELS.forEach(l=>getAudio(t.samples[l]));
+}
+function pruneAudio(pos){
+  const keep=new Set();
+  [pos,pos+1].forEach(p=>{ if(p>=0&&p<CONFIG.QUESTION_COUNT){ const t=TRIALS[ORDER[p]]; LABELS.forEach(l=>keep.add(t.samples[l])); } });
+  Object.keys(audioCache).forEach(src=>{
+    if(keep.has(src)||(currentAudio&&currentAudio.el===audioCache[src])) return;
+    const a=audioCache[src]; try{ a.pause(); a.removeAttribute('src'); a.load(); }catch(e){}
+    delete audioCache[src];
+  });
+}
+function stopAllAudio(){
+  if(currentAudio){ try{currentAudio.el.pause();}catch(e){} }
+  currentAudio=null;
+  document.querySelectorAll('.play.playing').forEach(el=>{ el.classList.remove('playing'); el.innerHTML=PLAY_ICON; });
+}
+function playAudio(key, src, btnEl, barEl, tag){
+  if(currentAudio && currentAudio.key===key){ stopAllAudio(); return; }
+  stopAllAudio();
+  const el=getAudio(src);
+  try{ el.currentTime=0; }catch(e){}
+  currentAudio={el,key,btn:btnEl};
+  playCounts[tag]=(playCounts[tag]||0)+1;
+  btnEl.classList.add('playing'); btnEl.innerHTML=PAUSE_ICON;
+  barEl.style.width='0%';
+  el.ontimeupdate=()=>{ if(el.duration) barEl.style.width=((el.currentTime/el.duration)*100)+'%'; };
+  el.onended=()=>{ barEl.style.width='100%'; stopAllAudio(); };
+  el.play().catch(()=>{ stopAllAudio(); });
+}
+
+/* ---------- state ---------- */
+const state={
+  idx:0, answers:{}, participant:"", startedAt:null, reviewing:false,
+  sessionId: (crypto.randomUUID ? crypto.randomUUID() : ('sid_'+Date.now().toString(36)+Math.random().toString(36).slice(2))),
+};
+const $=id=>document.getElementById(id);
+const screens={intro:$('intro'),question:$('question'),review:$('review'),done:$('done')};
+function show(name){ for(const k in screens){ screens[k].hidden=(k!==name);} $('counter').hidden=(name!=='question'); window.scrollTo({top:0,behavior:'instant'in window?'instant':'auto'}); }
+
+/* progress rail */
+function setRail(){
+  const total=CONFIG.QUESTION_COUNT;
+  let pct=0;
+  if(!screens.intro.hidden) pct=0;
+  else if(!screens.question.hidden) pct=(state.idx)/total*100;
+  else pct=100;
+  $('rail').style.width=pct+'%';
+}
+
+/* ---------- render a trial ---------- */
+let samplePanelEls=[]; // this trial's panel elements, indexed by slot
+function renderQuestion(){
+  stopAllAudio();
+  const identityIdx=ORDER[state.idx];
+  const t=TRIALS[identityIdx];
+  $('qtag').textContent='Trial '+String(state.idx+1).padStart(2,'0');
+  $('cNow').textContent=String(state.idx+1).padStart(2,'0');
+
+  renderSamplePanels(t);
+  preloadTrial(state.idx); preloadTrial(state.idx+1); pruneAudio(state.idx);
+  const sel=state.answers[identityIdx];
+  samplePanelEls.forEach((el,slotIdx)=>{ el.classList.toggle('sel', t.slots[slotIdx]===sel); });
+
+  const done=!!sel;
+  $('nextBtn').disabled=!done;
+  $('navHint').style.visibility=done?'hidden':'visible';
+  $('prevBtn').style.visibility=state.idx===0?'hidden':'visible';
+  $('nextLabel').textContent=state.reviewing?'Back to review':((state.idx===CONFIG.QUESTION_COUNT-1)?'Review':'Next');
+  setRail();
+}
+function renderSamplePanels(t){
+  const grid=$('sampleGrid'); grid.innerHTML='';
+  samplePanelEls=[];
+  t.slots.forEach((label,slotIdx)=>{
+    const src=t.samples[label];
+    const panel=document.createElement('button');
+    panel.type='button';
+    panel.className='panel';
+    panel.innerHTML=
+      '<div class="ptop">'+
+        '<div class="plabel"><span class="badge">'+(slotIdx+1)+'</span><span class="ptitle">Option '+(slotIdx+1)+'</span></div>'+
+        '<span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>'+
+      '</div>'+
+      '<div class="player">'+
+        '<span class="play" role="button" tabindex="0" aria-label="Play option '+(slotIdx+1)+'">'+PLAY_ICON+'</span>'+
+        '<div class="barwrap"><div class="bar"></div></div>'+
+      '</div>';
+    const playBtn=panel.querySelector('.play');
+    const bar=panel.querySelector('.bar');
+    const trigger=(e)=>{ e.stopPropagation(); playAudio('sample'+slotIdx, src, playBtn, bar, t.id+'_'+label); };
+    playBtn.addEventListener('click',trigger);
+    playBtn.addEventListener('keydown',(e)=>{ if(e.key===' '||e.key==='Enter'){ e.preventDefault(); trigger(e); } });
+    panel.addEventListener('click',(e)=>{ if(e.target.closest('.play'))return; choose(label); });
+    grid.appendChild(panel);
+    samplePanelEls.push(panel);
+  });
+}
+function choose(label){
+  const identityIdx=ORDER[state.idx];
+  state.answers[identityIdx]=label;
+  const t=TRIALS[identityIdx];
+  samplePanelEls.forEach((el,slotIdx)=>{ el.classList.toggle('sel', t.slots[slotIdx]===label); });
+  $('nextBtn').disabled=false; $('navHint').style.visibility='hidden';
+  scheduleAutosave();
+}
+
+/* ---------- review ---------- */
+function renderReview(){
+  const grid=$('grid20'); grid.innerHTML='';
+  let count=0;
+  for(let i=0;i<CONFIG.QUESTION_COUNT;i++){
+    const v=state.answers[i];
+    if(v) count++;
+    const pickedSlot=v?TRIALS[i].slots.indexOf(v)+1:null;
+    const btn=document.createElement('button');
+    btn.className='rchip'+(v?'':' missing');
+    btn.innerHTML='<span class="rn">Trial '+String(POSITION_OF[i]+1).padStart(2,'0')+'</span>'+
+      '<span class="rv '+(v?'set':'miss')+'">'+(v?'Option '+pickedSlot:'—')+'</span>';
+    btn.addEventListener('click',()=>{ state.idx=POSITION_OF[i]; state.reviewing=true; show('question'); renderQuestion(); });
+    grid.appendChild(btn);
+  }
+  // chips are listed in presentation order so "Trial N" matches what the listener saw
+  const chips=Array.from(grid.children);
+  chips.sort((a,b)=>a.querySelector('.rn').textContent.localeCompare(b.querySelector('.rn').textContent));
+  chips.forEach(c=>grid.appendChild(c));
+  $('tally').innerHTML='<b>'+count+'</b> / '+CONFIG.QUESTION_COUNT+' answered';
+  $('submitBtn').disabled=false;
+  setRail();
+}
+
+/* ---------- submit ---------- */
+function buildPayload(status){
+  const ans={}, slots={};
+  TRIALS.forEach((t,i)=>{ ans[t.id]=state.answers[i]||''; slots[t.id]=t.slots.join(''); });
+  return {
+    test: 'music-4way',
+    sessionId: state.sessionId,
+    status: status||'in_progress',
+    participant: state.participant||'',
+    startedAt: state.startedAt,
+    submittedAt: new Date().toISOString(),
+    elapsedMs: state.startedAt?Date.now()-new Date(state.startedAt).getTime():null,
+    userAgent: navigator.userAgent,
+    answers: ans,                                   // trial id -> chosen file label (A-D)
+    order: ORDER.map(i=>TRIALS[i].id).join(','),    // presentation order of trials
+    slots: slots,                                   // trial id -> file labels in on-screen order, e.g. "CADB"
+    playCounts: playCounts,                         // "t01_A" -> number of plays
+  };
+}
+
+/* ---------- autosave ----------
+   Plenty of participants close the tab partway through. Autosave sends the
+   same payload as the final submit, tagged status:'in_progress' and keyed
+   by sessionId, whenever an answer changes (debounced) and once more via
+   sendBeacon the instant the tab is hidden or closed. */
+let autosaveTimer=null;
+function scheduleAutosave(){
+  if(!CONFIG.ENDPOINT||!state.startedAt) return;
+  clearTimeout(autosaveTimer);
+  autosaveTimer=setTimeout(()=>sendAutosave(),700);
+}
+function sendAutosave(useBeacon){
+  if(!CONFIG.ENDPOINT||!state.startedAt) return;
+  const body=JSON.stringify(buildPayload('in_progress'));
+  if(useBeacon&&navigator.sendBeacon){
+    navigator.sendBeacon(CONFIG.ENDPOINT, new Blob([body],{type:'text/plain;charset=utf-8'}));
+    return;
+  }
+  fetch(CONFIG.ENDPOINT,{ method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain;charset=utf-8'}, body })
+    .catch(()=>{ try{ localStorage.setItem('musicListeningTestBackup', body); }catch(_){} });
+}
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') sendAutosave(true); });
+window.addEventListener('pagehide',()=>{ sendAutosave(true); });
+function downloadPayload(payload){
+  try{
+    const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob); const aEl=document.createElement('a');
+    aEl.href=url; aEl.download='listening-test-response.json'; document.body.appendChild(aEl); aEl.click();
+    aEl.remove(); URL.revokeObjectURL(url);
+  }catch(e){}
+}
+
+function submit(){
+  const missing=CONFIG.QUESTION_COUNT-Object.keys(state.answers).length;
+  if(missing>0 && !confirm(missing+' trial'+(missing===1?' is':'s are')+' still unanswered. Submit anyway?')) return;
+  stopAllAudio();
+  clearTimeout(autosaveTimer);
+  const payload=buildPayload('completed');
+  if(!CONFIG.ENDPOINT){
+    // demo mode: download locally
+    downloadPayload(payload);
+    $('demoFlag').hidden=false;
+    show('done'); setRail(); return;
+  }
+  // Every answer was already autosaved as it was made, so this call just
+  // marks the row 'completed'. Show the thank-you screen immediately and let
+  // it finish in the background, with a localStorage safety net.
+  const body=JSON.stringify(payload);
+  const controller=new AbortController();
+  setTimeout(()=>controller.abort(),12000);
+  fetch(CONFIG.ENDPOINT,{
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body, signal:controller.signal,
+  })
+    .then(()=>{ try{ localStorage.removeItem('musicListeningTestBackup'); }catch(e){} })
+    .catch(()=>{ try{ localStorage.setItem('musicListeningTestBackup', body); }catch(_){} });
+  show('done'); setRail();
+}
+
+/* ---------- theme toggle ---------- */
+function initTheme(){
+  let saved=null; try{saved=localStorage.getItem('lt-theme');}catch(e){}
+  if(saved) document.documentElement.setAttribute('data-theme',saved);
+  updateThemeIcon();
+}
+function currentTheme(){
+  const attr=document.documentElement.getAttribute('data-theme');
+  if(attr) return attr;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+}
+function updateThemeIcon(){
+  const dark=currentTheme()==='dark';
+  $('themeIcon').innerHTML=dark
+    ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>'
+    : '<circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>';
+}
+$('theme').addEventListener('click',()=>{
+  const next=currentTheme()==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  try{localStorage.setItem('lt-theme',next);}catch(e){}
+  updateThemeIcon();
+});
+
+/* ---------- wire up ---------- */
+$('brandName').textContent=CONFIG.TITLE;
+$('cTot').textContent=CONFIG.QUESTION_COUNT;
+initTheme();
+
+$('startBtn').addEventListener('click',()=>{
+  state.participant=$('pid').value.trim();
+  state.startedAt=new Date().toISOString();
+  state.idx=0; state.reviewing=false; show('question'); renderQuestion();
+  sendAutosave(); // record a 'started' row immediately, even before the first answer
+});
+$('nextBtn').addEventListener('click',()=>{
+  if(state.reviewing||state.idx===CONFIG.QUESTION_COUNT-1){ stopAllAudio(); state.reviewing=false; show('review'); renderReview(); }
+  else { state.idx++; renderQuestion(); }
+});
+$('prevBtn').addEventListener('click',()=>{ if(state.idx>0){ state.idx--; renderQuestion(); } });
+$('backToTop').addEventListener('click',()=>{ state.idx=0; state.reviewing=false; show('question'); renderQuestion(); });
+$('submitBtn').addEventListener('click',submit);
+
+setRail();
+</script>
+</body>
+</html>
