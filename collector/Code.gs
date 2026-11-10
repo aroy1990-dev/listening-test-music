@@ -11,7 +11,7 @@
  * rows are updated in place (matched on sessionId) until status = "completed".
  */
 const SHEET_NAME = 'responses';
-const N_TRIALS = 24;
+const N_TRIALS = 20;
 
 function doPost(e) {
   const lock = LockService.getScriptLock();

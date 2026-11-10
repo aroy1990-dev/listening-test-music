@@ -184,7 +184,7 @@ h2.q{font-family:var(--serif); font-weight:400; font-size:clamp(28px,4.2vw,42px)
     <header class="top">
       <div class="brand"><span class="dot"></span><span class="name" id="brandName">Music Listening Test</span></div>
       <div style="display:flex;align-items:center;gap:12px;">
-        <span class="counter" id="counter" hidden><b id="cNow">01</b> / <span id="cTot">24</span></span>
+        <span class="counter" id="counter" hidden><b id="cNow">01</b> / <span id="cTot">20</span></span>
         <button class="iconbtn" id="theme" aria-label="Toggle light and dark theme" title="Toggle theme">
           <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
         </button>
@@ -199,13 +199,13 @@ h2.q{font-family:var(--serif); font-weight:400; font-size:clamp(28px,4.2vw,42px)
   <section class="screen" id="intro">
     <p class="eyebrow">Blind listening study</p>
     <h1 class="hero">Which one <em>sounds</em><br/>best?</h1>
-    <p class="lead">You'll hear 24 short music excerpts, 30 seconds each. For every excerpt there are four versions of the same piece. Listen to the four options and pick the one that sounds best overall.</p>
+    <p class="lead">You'll hear 20 short music excerpts, 30 seconds each. For every excerpt there are four versions of the same piece. Listen to the four options and pick the one that sounds best overall.</p>
     <p class="lead" style="margin-top:-24px; color:var(--accent-strong); font-weight:600;">Please wear headphones, and set a comfortable volume before you start. The differences between options can be subtle and are easy to miss on laptop or phone speakers.</p>
     <p class="lead" style="margin-top:-24px; color:var(--muted); font-size:14.5px;">All versions have been matched for loudness, so please leave your volume alone during the test. The order of the excerpts and of the options is shuffled for every listener. Some options may sound very alike. That's expected, so go with your honest impression.</p>
     <ol class="steps">
       <li><span class="num">01</span><div><h3>Listen to the four options</h3><p>Play each one as often as you like and switch between them freely. You don't have to hear a clip to the end.</p></div></li>
       <li><span class="num">02</span><div><h3>Pick the one that sounds best</h3><p>Tap an option to select it. You can change your mind at any point.</p></div></li>
-      <li><span class="num">03</span><div><h3>Move through all 24 trials</h3><p>Review everything at the end, then submit. Takes about 30 minutes.</p></div></li>
+      <li><span class="num">03</span><div><h3>Move through all 20 trials</h3><p>Review everything at the end, then submit. Takes about 25 minutes.</p></div></li>
     </ol>
     <div class="idfield">
       <label for="pid">Participant tag <span style="text-transform:none;letter-spacing:0;">(optional)</span></label>
@@ -215,7 +215,7 @@ h2.q{font-family:var(--serif); font-weight:400; font-size:clamp(28px,4.2vw,42px)
       Begin the test
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
     </button>
-    <p class="meta" id="introMeta">Anonymous · headphones required · ~30 min</p>
+    <p class="meta" id="introMeta">Anonymous · headphones required · ~25 min</p>
   </section>
 
   <!-- QUESTION -->
@@ -285,11 +285,11 @@ h2.q{font-family:var(--serif); font-weight:400; font-size:clamp(28px,4.2vw,42px)
 const CONFIG = {
   ENDPOINT: "",
   TITLE: "Music Listening Test",
-  QUESTION_COUNT: 24,
+  QUESTION_COUNT: 20,
 };
 
 /* ---------- trial data ----------
-   24 trials x 4 versions. File labels (A-D) were already randomized by
+   20 trials x 4 versions. File labels (A-D) were already randomized by
    the researcher, and which system produced which file lives only in the
    private key.json, never here. Answers are recorded as the file label. */
 const LABELS = ['A','B','C','D'];
