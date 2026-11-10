@@ -198,14 +198,14 @@ h2.q{font-family:var(--serif); font-weight:400; font-size:clamp(28px,4.2vw,42px)
   <!-- INTRO -->
   <section class="screen" id="intro">
     <p class="eyebrow">Blind listening study</p>
-    <h1 class="hero">Which one <em>sounds</em><br/>best?</h1>
-    <p class="lead">You'll hear 20 short music excerpts, 30 seconds each. For every excerpt there are four versions of the same piece. Listen to the four options and pick the one that sounds best overall.</p>
-    <p class="lead" style="margin-top:-24px; color:var(--accent-strong); font-weight:600;">Please wear headphones, and set a comfortable volume before you start. The differences between options can be subtle and are easy to miss on laptop or phone speakers.</p>
-    <p class="lead" style="margin-top:-24px; color:var(--muted); font-size:14.5px;">All versions have been matched for loudness, so please leave your volume alone during the test. The order of the excerpts and of the options is shuffled for every listener. Some options may sound very alike. That's expected, so go with your honest impression.</p>
+    <h1 class="hero">Which one <em>does it</em><br/>best?</h1>
+    <p class="lead">You'll hear 20 short music excerpts, 30 seconds each. In every trial you first get the original recording, followed by two processed versions of it. Listen to the original, then to both options, and pick the one you think does it best.</p>
+    <p class="lead" style="margin-top:-24px; color:var(--accent-strong); font-weight:600;">Please wear headphones, and set a comfortable volume before you start. The differences between the options can be subtle and are easy to miss on laptop or phone speakers.</p>
+    <p class="lead" style="margin-top:-24px; color:var(--muted); font-size:14.5px;">All clips have been matched for loudness, so please leave your volume alone during the test. The order of the excerpts and of the two options is shuffled for every listener. The options may sound very alike. That's expected, so go with your honest impression.</p>
     <ol class="steps">
-      <li><span class="num">01</span><div><h3>Listen to the four options</h3><p>Play each one as often as you like and switch between them freely. You don't have to hear a clip to the end.</p></div></li>
-      <li><span class="num">02</span><div><h3>Pick the one that sounds best</h3><p>Tap an option to select it. You can change your mind at any point.</p></div></li>
-      <li><span class="num">03</span><div><h3>Move through all 20 trials</h3><p>Review everything at the end, then submit. Takes about 25 minutes.</p></div></li>
+      <li><span class="num">01</span><div><h3>Listen to the original</h3><p>Play the original clip first, so you know what the music started as.</p></div></li>
+      <li><span class="num">02</span><div><h3>Compare the two options</h3><p>Play each option as often as you like and switch between them freely. Pick the one that does it best.</p></div></li>
+      <li><span class="num">03</span><div><h3>Move through all 20 trials</h3><p>Review everything at the end, then submit. Takes about 15 minutes.</p></div></li>
     </ol>
     <div class="idfield">
       <label for="pid">Participant tag <span style="text-transform:none;letter-spacing:0;">(optional)</span></label>
@@ -215,18 +215,30 @@ h2.q{font-family:var(--serif); font-weight:400; font-size:clamp(28px,4.2vw,42px)
       Begin the test
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
     </button>
-    <p class="meta" id="introMeta">Anonymous · headphones required · ~25 min</p>
+    <p class="meta" id="introMeta">Anonymous · headphones required · ~15 min</p>
   </section>
 
   <!-- QUESTION -->
   <section class="screen" id="question" hidden>
     <div class="qhead">
       <span class="qtag" id="qtag">Trial 01</span>
-      <span class="qsub" id="qsub">4 options · 30 s each</span>
+      <span class="qsub" id="qsub">original + 2 options · 30 s each</span>
     </div>
-    <h2 class="q" id="qprompt">Which version sounds best overall?</h2>
+    <h2 class="q" id="qprompt">Which option does it best?</h2>
 
-    <div class="panels4" id="sampleGrid"></div>
+    <div class="refrow" style="grid-template-columns:1fr;">
+      <div class="refcard">
+        <div class="reflabel">Original <span class="refhint">(listen to this first)</span></div>
+        <div class="player">
+          <span class="play" id="playRef" role="button" tabindex="0" aria-label="Play the original">
+            <svg class="ic-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          </span>
+          <div class="barwrap"><div class="bar" id="barRef"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panels" id="sampleGrid"></div>
 
     <div class="qnav">
       <div class="left">
@@ -289,24 +301,20 @@ const CONFIG = {
 };
 
 /* ---------- trial data ----------
-   20 trials x 4 versions. File labels (A-D) were already randomized by
-   the researcher, and which system produced which file lives only in the
-   private key.json, never here. Answers are recorded as the file label. */
-const LABELS = ['A','B','C','D'];
-const TRIALS = Array.from({length:CONFIG.QUESTION_COUNT},(_,i)=>{
-  const id='t'+String(i+1).padStart(2,'0');
-  const samples={}; LABELS.forEach(l=>{ samples[l]='audio/'+id+'_'+l+'.wav'; });
-  return {id, samples};
-});
+   20 trials. Each has the original (ref) and two processed options. File
+   names are the researcher's randomized labels (e.g. t01_B); which system
+   produced which file lives only in the private key.json, never here.
+   Answers are recorded as the chosen file name. */
+const TRIALS = [{"id":"t01","ref":"t01_B","opts":["t01_A","t01_C"]},{"id":"t02","ref":"t02_D","opts":["t02_B","t02_C"]},{"id":"t03","ref":"t03_D","opts":["t03_B","t03_C"]},{"id":"t04","ref":"t04_D","opts":["t04_B","t04_C"]},{"id":"t05","ref":"t05_B","opts":["t05_A","t05_D"]},{"id":"t06","ref":"t06_B","opts":["t06_C","t06_D"]},{"id":"t07","ref":"t07_C","opts":["t07_B","t07_D"]},{"id":"t08","ref":"t08_A","opts":["t08_B","t08_C"]},{"id":"t09","ref":"t09_D","opts":["t09_A","t09_C"]},{"id":"t10","ref":"t10_A","opts":["t10_C","t10_D"]},{"id":"t11","ref":"t11_A","opts":["t11_B","t11_D"]},{"id":"t12","ref":"t12_C","opts":["t12_A","t12_B"]},{"id":"t13","ref":"t13_A","opts":["t13_B","t13_D"]},{"id":"t14","ref":"t14_B","opts":["t14_C","t14_D"]},{"id":"t15","ref":"t15_A","opts":["t15_B","t15_C"]},{"id":"t16","ref":"t16_D","opts":["t16_A","t16_B"]},{"id":"t17","ref":"t17_C","opts":["t17_A","t17_D"]},{"id":"t18","ref":"t18_D","opts":["t18_A","t18_B"]},{"id":"t19","ref":"t19_A","opts":["t19_C","t19_D"]},{"id":"t20","ref":"t20_A","opts":["t20_B","t20_C"]}];
 
 /* ---------- per-participant randomization ----------
    Two independent shuffles, seeded fresh per page load (= per participant):
    1. ORDER/POSITION_OF — the sequence trials are presented in. state.idx
       is a position in the shuffled sequence; ORDER[state.idx] maps back to
       the true trial index. Answers are stored keyed by true trial id.
-   2. TRIALS[i].slots — which on-screen slot (1st-4th) each file A-D lands
+   2. TRIALS[i].slots — which on-screen slot (1st/2nd) each option file lands
       in, so position bias can't favour one system. Answers are stored as
-      the true file label, never the slot. */
+      the true file name, never the slot. */
 function shuffled(arr){
   const a=arr.slice();
   for(let i=a.length-1;i>0;i--){
@@ -315,7 +323,7 @@ function shuffled(arr){
   }
   return a;
 }
-TRIALS.forEach(t=>{ t.slots=shuffled(LABELS); });
+TRIALS.forEach(t=>{ t.slots=shuffled(t.opts); });
 const ORDER=shuffled(Array.from({length:CONFIG.QUESTION_COUNT},(_,i)=>i));
 const POSITION_OF=new Array(CONFIG.QUESTION_COUNT);
 ORDER.forEach((identityIdx,pos)=>{ POSITION_OF[identityIdx]=pos; });
@@ -327,6 +335,7 @@ ORDER.forEach((identityIdx,pos)=>{ POSITION_OF[identityIdx]=pos; });
 const PLAY_ICON='<svg class="ic-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
 const PAUSE_ICON='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>';
 const audioCache={};
+const SRC=stem=>'audio/'+stem+'.wav';
 const playCounts={};
 let currentAudio=null; // {el, key, btn}
 function getAudio(src){
@@ -336,11 +345,11 @@ function getAudio(src){
 function preloadTrial(pos){
   if(pos<0||pos>=CONFIG.QUESTION_COUNT) return;
   const t=TRIALS[ORDER[pos]];
-  LABELS.forEach(l=>getAudio(t.samples[l]));
+  [t.ref,...t.opts].forEach(f=>getAudio(SRC(f)));
 }
 function pruneAudio(pos){
   const keep=new Set();
-  [pos,pos+1].forEach(p=>{ if(p>=0&&p<CONFIG.QUESTION_COUNT){ const t=TRIALS[ORDER[p]]; LABELS.forEach(l=>keep.add(t.samples[l])); } });
+  [pos,pos+1].forEach(p=>{ if(p>=0&&p<CONFIG.QUESTION_COUNT){ const t=TRIALS[ORDER[p]]; [t.ref,...t.opts].forEach(f=>keep.add(SRC(f))); } });
   Object.keys(audioCache).forEach(src=>{
     if(keep.has(src)||(currentAudio&&currentAudio.el===audioCache[src])) return;
     const a=audioCache[src]; try{ a.pause(); a.removeAttribute('src'); a.load(); }catch(e){}
@@ -394,6 +403,8 @@ function renderQuestion(){
   $('qtag').textContent='Trial '+String(state.idx+1).padStart(2,'0');
   $('cNow').textContent=String(state.idx+1).padStart(2,'0');
 
+  $('playRef').dataset.src=SRC(t.ref); $('playRef').dataset.tag=t.ref;
+  $('barRef').style.width='0%';
   renderSamplePanels(t);
   preloadTrial(state.idx); preloadTrial(state.idx+1); pruneAudio(state.idx);
   const sel=state.answers[identityIdx];
@@ -410,7 +421,7 @@ function renderSamplePanels(t){
   const grid=$('sampleGrid'); grid.innerHTML='';
   samplePanelEls=[];
   t.slots.forEach((label,slotIdx)=>{
-    const src=t.samples[label];
+    const src=SRC(label);
     const panel=document.createElement('button');
     panel.type='button';
     panel.className='panel';
@@ -425,7 +436,7 @@ function renderSamplePanels(t){
       '</div>';
     const playBtn=panel.querySelector('.play');
     const bar=panel.querySelector('.bar');
-    const trigger=(e)=>{ e.stopPropagation(); playAudio('sample'+slotIdx, src, playBtn, bar, t.id+'_'+label); };
+    const trigger=(e)=>{ e.stopPropagation(); playAudio('sample'+slotIdx, src, playBtn, bar, label); };
     playBtn.addEventListener('click',trigger);
     playBtn.addEventListener('keydown',(e)=>{ if(e.key===' '||e.key==='Enter'){ e.preventDefault(); trigger(e); } });
     panel.addEventListener('click',(e)=>{ if(e.target.closest('.play'))return; choose(label); });
@@ -469,9 +480,9 @@ function renderReview(){
 /* ---------- submit ---------- */
 function buildPayload(status){
   const ans={}, slots={};
-  TRIALS.forEach((t,i)=>{ ans[t.id]=state.answers[i]||''; slots[t.id]=t.slots.join(''); });
+  TRIALS.forEach((t,i)=>{ ans[t.id]=state.answers[i]||''; slots[t.id]=t.slots.join(','); });
   return {
-    test: 'music-4way',
+    test: 'music-prism-ab',
     sessionId: state.sessionId,
     status: status||'in_progress',
     participant: state.participant||'',
@@ -479,10 +490,10 @@ function buildPayload(status){
     submittedAt: new Date().toISOString(),
     elapsedMs: state.startedAt?Date.now()-new Date(state.startedAt).getTime():null,
     userAgent: navigator.userAgent,
-    answers: ans,                                   // trial id -> chosen file label (A-D)
+    answers: ans,                                   // trial id -> chosen file name, e.g. t01_A
     order: ORDER.map(i=>TRIALS[i].id).join(','),    // presentation order of trials
-    slots: slots,                                   // trial id -> file labels in on-screen order, e.g. "CADB"
-    playCounts: playCounts,                         // "t01_A" -> number of plays
+    slots: slots,                                   // trial id -> option files in on-screen order, e.g. "t01_A,t01_C"
+    playCounts: playCounts,                         // file name -> number of plays (includes the original)
   };
 }
 
@@ -581,6 +592,9 @@ $('startBtn').addEventListener('click',()=>{
   state.idx=0; state.reviewing=false; show('question'); renderQuestion();
   sendAutosave(); // record a 'started' row immediately, even before the first answer
 });
+function refPlay(e){ e.stopPropagation(); const b=$('playRef'); playAudio('ref', b.dataset.src, b, $('barRef'), b.dataset.tag); }
+$('playRef').addEventListener('click',refPlay);
+$('playRef').addEventListener('keydown',(e)=>{ if(e.key===' '||e.key==='Enter'){ e.preventDefault(); refPlay(e); } });
 $('nextBtn').addEventListener('click',()=>{
   if(state.reviewing||state.idx===CONFIG.QUESTION_COUNT-1){ stopAllAudio(); state.reviewing=false; show('review'); renderReview(); }
   else { state.idx++; renderQuestion(); }
